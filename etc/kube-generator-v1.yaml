@@ -1,0 +1,55 @@
+default:
+  namespace: nbserver
+  replicas: 1
+  imageprefix: "nbserver/"
+  imagetag: "2022_01_12"
+  resources:
+    requests:
+      cpu: 20m
+      memory: 20Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+services:
+  - name: login
+    replicas: 2
+    ports:
+      - port: 8800
+        type: application
+    hpa:
+      - minreplicas: 2
+        maxreplicas: 5
+        type: cpu
+        threshold: 80
+      - minreplicas: 2
+        maxreplicas: 5
+        type: memory
+        threshold: 80
+  - name: gate
+    replicas: 2
+    ports:
+      - port: 6699
+        type: network
+      - port: 6400
+      - port: 6700
+    resources:
+      requests:
+        cpu: 50m
+        memory: 20Mi
+    hpa:
+      - minreplicas: 2
+        maxreplicas: 10
+        type: cpu
+        threshold: 80
+      - minreplicas: 2
+        maxreplicas: 10
+        type: memory
+        threshold: 80
+  - name: gm
+    ports:
+      - port: 6300
+        type: network
+      - port: 8000
+  - name: account
+    ports:
+      - port: 8086

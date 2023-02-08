@@ -1,0 +1,29 @@
+FROM {{FromImg|default:"reg.test.com/cicd/jdk1.8.0:221"}}
+
+WORKDIR /bbs/service/{{ProjectName}}/
+
+{% if Anchor == 1 %}
+COPY  {{Scf}}  /bbs/service/{{ProjectName}}/config/{{Dcf}}
+{% endif %}
+
+{% if Anchor == 2 %}
+COPY  {{Scf}} {{Dcf}}
+{% endif %}
+
+COPY  {{Outputs}}  /bbs/service/{{ProjectName}}/app.jar
+
+ENV TZ=Asia/Shanghai
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+{% if JvmOpt == "" %}
+
+ENTRYPOINT ["/bin/sh","-c","java -Djava.security.egd=file:/dev/./urandom -jar /bbs/service/{{ProjectName}}/app.jar "]
+
+{% else %}
+
+ENV JAVA_OPTS="{{JvmOpt}}"
+
+ENTRYPOINT ["/bin/sh","-c","java -Djava.security.egd=file:/dev/./urandom -jar $JAVA_OPTS /bbs/service/{{ProjectName}}/app.jar "]
+
+{% endif %}

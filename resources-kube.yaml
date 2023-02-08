@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: be-bbs-test-logdemo
+  name: be-bbs-test-logdemo
+  namespace: dev
+spec:
+  minReadySeconds: 5
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: be-bbs-test-logdemo
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: be-bbs-test-logdemo
+        type: service
+    spec:
+      containers:
+      - image: reg.test.com/be-bbs-test-logdemo:000324
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command: [ "sh","-c","sleep 5" ]
+        name: be-bbs-test-logdemo
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 20m
+            memory: 20Mi
+        volumeMounts: []
+      volumes:
+      - hostPath:
+          path: /data
+        name: test
+      - name: site-data
+        persistentVolumeClaim:
+          claimName: my-lamp-site-data
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: be-bbs-test-logdemo-svc
+  namespace: dev
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: be-bbs-test-logdemo
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ingress-be-bbs-test-logdemo
+  namespace: dev
+spec:
+  rules:
+  - host: www.test.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: be-bbs-test-logdemo-svc
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix

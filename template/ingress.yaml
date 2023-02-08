@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1 # deprecated after v1.22+
+kind: Ingress
+metadata:
+  namespace: $(namespace)
+  name: ingress-$(name)
+  annotations:
+    kubernetes.io/ingress.class: nginx
+#    kubernetes.io/ingress.class: alb
+#    alb.ingress.kubernetes.io/scheme: internet-facing
+#    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  rules:
+    - host: $(host)
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            #pathType: Exact
+            backend:
+              service:
+                name:  $(name)-svc
+                port:
+                  number: $(ports.application.port)

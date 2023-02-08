@@ -1,0 +1,29 @@
+default:
+  namespace: nbserver
+  replicas: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 20Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+
+services:
+  - name: login
+    replicas: 1
+    image: "fsdfa/fasdf/fasd:v25"
+    host: "www.test.com"
+    ports:
+      - port: 8080
+      - port: 8801
+        type: application
+    hpa:
+      - minreplicas: 1
+        maxreplicas: 5
+        type: cpu
+        threshold: 80
+      - minreplicas: 1
+        maxreplicas: 5
+        type: memory
+        threshold: 80

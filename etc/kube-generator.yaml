@@ -1,0 +1,25 @@
+default:
+  namespace: dev
+  replicas: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 20Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+  volumes:
+    - name: test
+      hostPath:
+        path: /data
+    - name: site-data
+      persistentVolumeClaim:
+        claimName: my-lamp-site-data
+
+services:
+  - name: be-bbs-test-logdemo
+    image: "reg.test.com/ztyc/be-bbs-test-logdemo:20220421103226_101"
+    host: www.test.com
+    ports:
+      - port: 8080
+        type: application

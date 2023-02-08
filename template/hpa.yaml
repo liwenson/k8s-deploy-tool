@@ -1,0 +1,21 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: $(name)-hpa-$(hpa.#.type)
+  namespace: $(namespace)
+  labels:
+    app: $(name)-hpa-$(hpa.#.type)
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: $(name)
+  minReplicas: $(hpa.#.minreplicas)
+  maxReplicas: $(hpa.#.maxreplicas)
+  metrics:
+    - type: Resource
+      resource:
+        name: $(hpa.#.type)
+        target:
+          type: Utilization
+          averageUtilization: $(hpa.#.threshold)
